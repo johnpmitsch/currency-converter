@@ -1,13 +1,11 @@
 
-def convert(rates, value, frm, currency1, to, currency2):
+def convert(rates, value, currency1, currency2):
     """converts a value from a currency to another currency taking a list of
     tuples as rates argument. for example:
     convert([("USD", "EUR", .86)], 1, "from", "USD", "to", "EUR") == .86"""
-    
+
     exchange_rate = rates[0][2]
     return value * exchange_rate
-
-
 
 if __name__ == '__main__':
 
