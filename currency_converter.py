@@ -1,9 +1,53 @@
+from dijkstra import Graph
+
+
+currency_rates = [("USD", "EUR", 0.86),
+                  ("EUR", "JPY", 136.99),
+                  ("GBP", "USD", 1.52),
+                  ("USD", "CAD", 1.21),
+                  ("AUD", "USD", 0.82),
+                  ("USD", "INR", 61.74),
+                  ("USD", "XBT", 0.00478),
+                  ("EUR", "IQD", 1311.14367),
+                  ("EUR", "CNY", 7.18222),
+                  ("CNY", "KRW", 175.00082)]
+
+currency_rates_graph = Graph([("USD", "EUR", 0.86),
+                              ("EUR", "JPY", 136.99),
+                              ("GBP", "USD", 1.52),
+                              ("USD", "CAD", 1.21),
+                              ("AUD", "USD", 0.82),
+                              ("USD", "INR", 61.74),
+                              ("USD", "XBT", 0.00478),
+                              ("EUR", "IQD", 1311.14367),
+                              ("EUR", "CNY", 7.18222),
+                              ("CNY", "KRW", 175.00082)])
+
 
 def convert(rates, value, from_currency, to_currency):
+    path = get_shortest_path(from_currency, to_currency)
+    if len(path) < 3:
+        return simple_convert(rates, value, from_currency, to_currency)
+    else:
+        return dijkstra_convert(rates, value, from_currency, to_currency)
+
+
+def dijkstra_convert(rates, value, from_currency, to_currency):
+    """Converts currencies from one to another using the shortest path between
+    two currencies"""
+    path = get_shortest_path(from_currency, to_currency)
+    counter = 0
+    while counter < len(path) - 1:
+        print(counter, path[counter], path[counter + 1])
+        value = simple_convert(rates, value, path[counter], path[counter + 1])
+        counter += 1
+    return value
+
+
+def simple_convert(rates, value, from_currency, to_currency):
     """Converts a value from a currency to another currency taking a list of
     tuples as rates argument. for example:
     convert([("USD", "EUR", .86)], 1, "USD", "EUR") == .86"""
-
     currency_rate = find_currency_rate(rates, from_currency, to_currency)
     if is_same(from_currency, to_currency):
         return value
@@ -20,6 +64,7 @@ def find_currency_rate(rates, from_currency, to_currency):
                      if set((from_currency, to_currency)) ==
                      set((rate[0], rate[1]))]
     try:
+        print(currency_rate)
         return currency_rate[0]
     except IndexError:
         print("Can not find exchange rate")
@@ -40,16 +85,13 @@ def is_reversed(rate_tuple, from_currency, to_currency):
 
 
 def is_same(from_currency, to_currency):
+    """Checks to see if currencies are the same for an even exchange"""
     return from_currency == to_currency
 
-if __name__ == '__main__':
 
-    currency_rates = [("USD", "EUR", 0.86),
-                      ("EUR", "JPY", 136.99),
-                      ("USD", "JPY", 118.68),
-                      ("GBP", "USD", 1.52),
-                      ("USD", "CAD", 1.21),
-                      ("AUD", "USD", 0.82),
-                      ("USD", "INR", 61.74),
-                      ("USD", "XBT", 0.00478)
-                      ]
+def get_shortest_path(from_currency, to_currency):
+    """Gets shortest path from one currency to another"""
+    try:
+        return currency_rates_graph.dijkstra(from_currency, to_currency)
+    except KeyError:
+        print("currency not found!")
